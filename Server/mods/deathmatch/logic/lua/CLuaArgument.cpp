@@ -31,12 +31,14 @@ CLuaArgument::CLuaArgument()
     m_iType = LUA_TNIL;
     m_pTableData = NULL;
     m_pUserData = NULL;
+    m_pFunction = NULL;
 }
 
 CLuaArgument::CLuaArgument(const CLuaArgument& Argument, CFastHashMap<CLuaArguments*, CLuaArguments*>* pKnownTables)
 {
     // Initialize and call our = on the argument
     m_pTableData = NULL;
+    m_pFunction = NULL;
     CopyRecursive(Argument, pKnownTables);
 }
 
@@ -44,6 +46,7 @@ CLuaArgument::CLuaArgument(lua_State* luaVM, int iArgument, CFastHashMap<const v
 {
     // Read the argument out of the lua VM
     m_pTableData = NULL;
+    m_pFunction = NULL;
     Read(luaVM, iArgument, pKnownTables);
 }
 
@@ -107,6 +110,13 @@ void CLuaArgument::CopyRecursive(const CLuaArgument& Argument, CFastHashMap<CLua
         case LUA_TSTRING:
         {
             m_strString = Argument.m_strString;
+            break;
+        }
+
+        case LUA_TFUNCTION:
+        {
+            if (Argument.m_pFunction)
+                m_pFunction = new CLuaFunctionRef(*Argument.m_pFunction);
             break;
         }
 
@@ -218,8 +228,7 @@ void CLuaArgument::Read(lua_State* luaVM, int iArgument, CFastHashMap<const void
 
             case LUA_TFUNCTION:
             {
-                // TODO: add function reading (has to work inside tables too)
-                m_iType = LUA_TNIL;
+                m_pFunction = new CLuaFunctionRef(luaM_toref(luaVM, iArgument));
                 break;
             }
 
@@ -294,6 +303,15 @@ void CLuaArgument::Push(lua_State* luaVM, CFastHashMap<CLuaArguments*, int>* pKn
             case LUA_TSTRING:
             {
                 lua_pushlstring(luaVM, m_strString.c_str(), m_strString.length());
+                break;
+            }
+
+            case LUA_TFUNCTION:
+            {
+                if (m_pFunction)
+                    lua_rawgeti(luaVM, LUA_REGISTRYINDEX, m_pFunction->ToInt());
+                else
+                    lua_pushnil(luaVM);
                 break;
             }
         }
@@ -765,6 +783,12 @@ void CLuaArgument::DeleteTableData()
             delete m_pTableData;
         m_pTableData = NULL;
     }
+
+    if (m_pFunction)
+    {
+        delete m_pFunction;
+        m_pFunction = NULL;
+    }
 }
 
 json_object* CLuaArgument::WriteToJSONObject(bool bSerialize, CFastHashMap<CLuaArguments*, unsigned long>* pKnownTables)
@@ -981,6 +1005,12 @@ bool CLuaArgument::IsEqualTo(const CLuaArgument& compareTo, std::set<const CLuaA
         case LUA_TSTRING:
         {
             return m_strString == compareTo.m_strString;
+        }
+        case LUA_TFUNCTION:
+        {
+            if (!m_pFunction || !compareTo.m_pFunction)
+                return m_pFunction == compareTo.m_pFunction;
+            return *m_pFunction == *compareTo.m_pFunction;
         }
     }
 

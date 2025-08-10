@@ -19,6 +19,7 @@ extern "C"
 }
 #include "../common/CBitStream.h"
 #include "json.h"
+#include "CLuaFunctionRef.h"
 
 class CElement;
 class CLuaArguments;
@@ -120,6 +121,7 @@ private:
     std::string    m_strString;
     void*          m_pUserData;
     CLuaArguments* m_pTableData;
+    CLuaFunctionRef* m_pFunction;
     bool           m_bWeakTableRef;
 
 #ifdef MTA_DEBUG
