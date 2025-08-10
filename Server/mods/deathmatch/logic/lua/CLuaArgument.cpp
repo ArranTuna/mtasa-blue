@@ -308,7 +308,7 @@ void CLuaArgument::Push(lua_State* luaVM, CFastHashMap<CLuaArguments*, int>* pKn
 
             case LUA_TFUNCTION:
             {
-                if (m_Function.GetLuaVM() == luaVM)
+                if (m_Function.GetLuaVM() == luaVM && VERIFY_FUNCTION(m_Function))
                     lua_getref(luaVM, m_Function.ToInt());
                 else
                     lua_pushnil(luaVM);
