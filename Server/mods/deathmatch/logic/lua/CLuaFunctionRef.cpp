@@ -77,8 +77,8 @@ void luaM_dec_use(lua_State* luaVM, int iFunction, const void* pFuncPtr)
         return;
 
     CRefInfo* pInfo = MapFind(pLuaMain->m_CallbackTable, pFuncPtr);
-    assert(pInfo);
-    assert(pInfo->iFunction == iFunction);
+    if (!pInfo || pInfo->iFunction != iFunction)
+        return;
 
     if (--pInfo->ulUseCount == 0)
     {
