@@ -110,6 +110,12 @@ void CLuaArgument::CopyRecursive(const CLuaArgument& Argument, CFastHashMap<CLua
             break;
         }
 
+        case LUA_TFUNCTION:
+        {
+            m_Function = Argument.m_Function;
+            break;
+        }
+
         default:
             break;
     }
@@ -218,8 +224,11 @@ void CLuaArgument::Read(lua_State* luaVM, int iArgument, CFastHashMap<const void
 
             case LUA_TFUNCTION:
             {
-                // TODO: add function reading (has to work inside tables too)
-                m_iType = LUA_TNIL;
+                int iAbsIndex = iArgument;
+                if (iArgument < 0)
+                    iAbsIndex = lua_gettop(luaVM) + iArgument + 1;
+                lua_pushvalue(luaVM, iAbsIndex);
+                m_Function = luaM_toref(luaVM, lua_gettop(luaVM));
                 break;
             }
 
@@ -294,6 +303,15 @@ void CLuaArgument::Push(lua_State* luaVM, CFastHashMap<CLuaArguments*, int>* pKn
             case LUA_TSTRING:
             {
                 lua_pushlstring(luaVM, m_strString.c_str(), m_strString.length());
+                break;
+            }
+
+            case LUA_TFUNCTION:
+            {
+                if (m_Function.GetLuaVM() == luaVM)
+                    lua_getref(luaVM, m_Function.ToInt());
+                else
+                    lua_pushnil(luaVM);
                 break;
             }
         }
@@ -765,6 +783,7 @@ void CLuaArgument::DeleteTableData()
             delete m_pTableData;
         m_pTableData = NULL;
     }
+    m_Function = CLuaFunctionRef();
 }
 
 json_object* CLuaArgument::WriteToJSONObject(bool bSerialize, CFastHashMap<CLuaArguments*, unsigned long>* pKnownTables)
@@ -981,6 +1000,11 @@ bool CLuaArgument::IsEqualTo(const CLuaArgument& compareTo, std::set<const CLuaA
         case LUA_TSTRING:
         {
             return m_strString == compareTo.m_strString;
+        }
+
+        case LUA_TFUNCTION:
+        {
+            return m_Function == compareTo.m_Function;
         }
     }
 
