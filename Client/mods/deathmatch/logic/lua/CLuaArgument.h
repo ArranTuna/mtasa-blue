@@ -17,6 +17,7 @@ extern "C"
 #include <net/bitstream.h>
 #include <string>
 #include "json.h"
+#include "CLuaFunctionRef.h"
 
 class CClientEntity;
 class CLuaArguments;
@@ -118,6 +119,7 @@ private:
     SString        m_strString;
     void*          m_pUserData;
     CLuaArguments* m_pTableData;
+    CLuaFunctionRef* m_pFunction;
     bool           m_bWeakTableRef;
 
 #ifdef MTA_DEBUG
