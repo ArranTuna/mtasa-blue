@@ -4675,6 +4675,12 @@ float CClientPed::GetDistanceFromGround()
 
 bool CClientPed::IsOnGround()
 {
+    if (m_pPlayerPed)
+    {
+        if (m_pPlayerPed->IsOnGround() || m_pPlayerPed->IsStandingOnEntity() || GetContactEntity())
+            return true;
+    }
+
     CVector vecPosition;
     GetPosition(vecPosition);
     float fGroundLevel = static_cast<float>(g_pGame->GetWorld()->FindGroundZFor3DPosition(&vecPosition));
