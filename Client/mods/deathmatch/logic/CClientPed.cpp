@@ -31,6 +31,7 @@
 #include <game/TaskJumpFall.h>
 #include <game/TaskPhysicalResponse.h>
 #include <game/TaskAttack.h>
+#include <game_sa/CPedSA.h>
 #include "enums/VehicleType.h"
 
 using std::list;
@@ -4677,7 +4678,8 @@ bool CClientPed::IsOnGround()
 {
     if (m_pPlayerPed)
     {
-        if (m_pPlayerPed->IsOnGround() || m_pPlayerPed->IsStandingOnEntity() || GetContactEntity())
+        CPedSAInterface* pPedInterface = m_pPlayerPed->GetPedInterface();
+        if (pPedInterface && (pPedInterface->pedFlags.bIsStanding || pPedInterface->pContactEntity || GetContactEntity()))
             return true;
     }
 
