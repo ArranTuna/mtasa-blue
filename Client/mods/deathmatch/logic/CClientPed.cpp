@@ -31,7 +31,7 @@
 #include <game/TaskJumpFall.h>
 #include <game/TaskPhysicalResponse.h>
 #include <game/TaskAttack.h>
-#include <game_sa/CPedSA.h>
+#include "../../../game_sa/CPedSA.h"
 #include "enums/VehicleType.h"
 
 using std::list;
