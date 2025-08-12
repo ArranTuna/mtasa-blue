@@ -4679,8 +4679,12 @@ bool CClientPed::IsOnGround()
     if (m_pPlayerPed)
     {
         CPedSAInterface* pPedInterface = m_pPlayerPed->GetPedInterface();
-        if (pPedInterface && (pPedInterface->pedFlags.bIsStanding || pPedInterface->pContactEntity || GetContactEntity()))
-            return true;
+        if (pPedInterface)
+        {
+            CEntitySAInterface* pContact = pPedInterface->pContactEntity;
+            if ((pContact && pContact->nType == ENTITY_TYPE_OBJECT) || (!pContact && pPedInterface->pedFlags.bIsStanding))
+                return true;
+        }
     }
 
     CVector vecPosition;
