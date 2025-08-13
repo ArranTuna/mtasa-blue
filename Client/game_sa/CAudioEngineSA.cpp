@@ -481,17 +481,17 @@ void CAudioEngineSA::SetWorldSoundHandler(WorldSoundHandler* pHandler)
 
 bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
 {
-    OutputDebugString(SString("[WorldSound] group:%u index:%u\n", pAESound->usGroup, pAESound->usIndex));
+    OutputDebugLine(SString("[WorldSound] group:%u index:%u", pAESound->usGroup, pAESound->usIndex));
 
     if (!IsWorldSoundEnabled(pAESound->usGroup, pAESound->usIndex))
     {
-        OutputDebugString("[WorldSound] sound disabled\n");
+        OutputDebugLine("[WorldSound] sound disabled");
         return false;
     }
 
     if (m_pWorldSoundHandler)
     {
-        OutputDebugString("[WorldSound] invoking handler\n");
+        OutputDebugLine("[WorldSound] invoking handler");
 
         CEntitySAInterface* pGameEntity = pAESound->pGameEntity;
 
@@ -523,7 +523,7 @@ bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
         if (statsTimer.Get() > 1000)
         {
             double fAverage = uiSamples ? fTotalTime / uiSamples : 0.0;
-            OutputDebugString(SString("[WorldSound] samples:%u avg:%.3fms max:%.3fms\n", uiSamples, fAverage, fMaxTime));
+            OutputDebugLine(SString("[WorldSound] samples:%u avg:%.3fms max:%.3fms", uiSamples, fAverage, fMaxTime));
             statsTimer.Reset();
             fTotalTime = 0.0;
             fMaxTime = 0.0;
@@ -533,7 +533,7 @@ bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
         return bResult;
     }
 
-    OutputDebugString("[WorldSound] no handler registered\n");
+    OutputDebugLine("[WorldSound] no handler registered");
 
     return true;
 }

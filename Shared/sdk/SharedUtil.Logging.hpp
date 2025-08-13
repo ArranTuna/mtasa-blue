@@ -14,6 +14,7 @@
 #include "SharedUtil.Misc.h"
 #include "SharedUtil.File.h"
 #include "SharedUtil.Time.h"
+#include <cstdio>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -99,7 +100,7 @@ void SharedUtil::OutputDebugLine(const char* szMessage)
 #ifdef _WIN32
     OutputDebugString(strMessage);
 #else
-            // Other platforms here
+    fputs(strMessage.c_str(), stderr);
 #endif
 }
 
@@ -146,7 +147,7 @@ void SharedUtil::OutputReleaseLine(const char* szMessage)
 #ifdef _WIN32
     OutputDebugString(strMessage);
 #else
-        // Other platforms here
+    fputs(strMessage.c_str(), stderr);
 #endif
 }
 
