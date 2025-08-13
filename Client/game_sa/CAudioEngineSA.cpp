@@ -40,7 +40,6 @@ CAudioEngineSA::CAudioEngineSA(CAudioEngineSAInterface* pInterface)
     m_bAmbientGeneralEnabled = true;
     m_bAmbientGunfireEnabled = true;
     m_pWorldSoundHandler = NULL;
-    m_bWorldSoundEventsEnabled = false;
 
     HookInstall(HOOKPOS_CAEAmbienceTrackManager_CheckForPause, (DWORD)HOOK_CAEAmbienceTrackManager_CheckForPause, 6);
 
@@ -480,17 +479,12 @@ void CAudioEngineSA::SetWorldSoundHandler(WorldSoundHandler* pHandler)
     m_pWorldSoundHandler = pHandler;
 }
 
-void CAudioEngineSA::SetWorldSoundEventsEnabled(bool bEnabled)
-{
-    m_bWorldSoundEventsEnabled = bEnabled;
-}
-
 bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
 {
     if (!IsWorldSoundEnabled(pAESound->usGroup, pAESound->usIndex))
         return false;
 
-    if (m_pWorldSoundHandler && m_bWorldSoundEventsEnabled)
+    if (m_pWorldSoundHandler)
     {
         CEntitySAInterface* pGameEntity = pAESound->pGameEntity;
 
@@ -504,7 +498,32 @@ bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
             pAESound->m_vCurrPosn,
         };
 
-        return m_pWorldSoundHandler(event);
+        CElapsedTimeHD callTimer;
+        callTimer.Reset();
+
+        bool bResult = m_pWorldSoundHandler(event);
+
+        static CElapsedTime statsTimer;
+        static double       fTotalTime = 0.0;
+        static double       fMaxTime = 0.0;
+        static uint         uiSamples = 0;
+
+        double fElapsed = callTimer.Get();
+        fTotalTime += fElapsed;
+        fMaxTime = std::max(fMaxTime, fElapsed);
+        ++uiSamples;
+
+        if (statsTimer.Get() > 1000)
+        {
+            double fAverage = uiSamples ? fTotalTime / uiSamples : 0.0;
+            OutputDebugLine(SString("[WorldSound] samples:%u avg:%.3fms max:%.3fms", uiSamples, fAverage, fMaxTime));
+            statsTimer.Reset();
+            fTotalTime = 0.0;
+            fMaxTime = 0.0;
+            uiSamples = 0;
+        }
+
+        return bResult;
     }
 
     return true;
