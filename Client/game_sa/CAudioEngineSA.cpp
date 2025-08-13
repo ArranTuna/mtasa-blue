@@ -40,6 +40,7 @@ CAudioEngineSA::CAudioEngineSA(CAudioEngineSAInterface* pInterface)
     m_bAmbientGeneralEnabled = true;
     m_bAmbientGunfireEnabled = true;
     m_pWorldSoundHandler = NULL;
+    m_bWorldSoundEventsEnabled = false;
 
     HookInstall(HOOKPOS_CAEAmbienceTrackManager_CheckForPause, (DWORD)HOOK_CAEAmbienceTrackManager_CheckForPause, 6);
 
@@ -479,12 +480,17 @@ void CAudioEngineSA::SetWorldSoundHandler(WorldSoundHandler* pHandler)
     m_pWorldSoundHandler = pHandler;
 }
 
+void CAudioEngineSA::SetWorldSoundEventsEnabled(bool bEnabled)
+{
+    m_bWorldSoundEventsEnabled = bEnabled;
+}
+
 bool CAudioEngineSA::OnWorldSound(CAESound* pAESound)
 {
     if (!IsWorldSoundEnabled(pAESound->usGroup, pAESound->usIndex))
         return false;
 
-    if (m_pWorldSoundHandler)
+    if (m_pWorldSoundHandler && m_bWorldSoundEventsEnabled)
     {
         CEntitySAInterface* pGameEntity = pAESound->pGameEntity;
 

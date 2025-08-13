@@ -138,6 +138,7 @@ public:
     bool          IsWorldSoundEnabled(uint uiGroup, uint uiIndex);
     void          ResetWorldSounds();
     void          SetWorldSoundHandler(WorldSoundHandler* pHandler);
+    void          SetWorldSoundEventsEnabled(bool bEnabled);
     void          ReportBulletHit(CEntity* pEntity, unsigned char ucSurfaceType, CVector* pvecPosition, float f_2);
     void          ReportWeaponEvent(int iEvent, eWeaponType weaponType, CPhysical* pPhysical);
 
@@ -153,6 +154,7 @@ private:
     bool               m_bAmbientGunfireEnabled;
     CRanges            m_DisabledWorldSounds;
     WorldSoundHandler* m_pWorldSoundHandler;
+    bool               m_bWorldSoundEventsEnabled;
 
     CAudioEngineSAInterface* m_pInterface;
 };
